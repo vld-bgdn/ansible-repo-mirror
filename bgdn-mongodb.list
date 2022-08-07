@@ -1,0 +1,5 @@
+#deb [arch=amd64] http://mr.lab.bgdn.io/mongo/ubuntu $(lsb_release -cs)/mongodb-org/4.2 multiverse
+#deb [arch=amd64] http://mr.lab.bgdn.io/mongo/ubuntu $(lsb_release -cs)/mongodb-org/4.3 multiverse
+#deb [arch=amd64] http://mr.lab.bgdn.io/mongo/ubuntu $(lsb_release -cs)/mongodb-org/4.4 multiverse
+#deb [arch=amd64] http://mr.lab.bgdn.io/mongo/ubuntu $(lsb_release -cs)/mongodb-org/5.0 multiverse
+#deb [arch=amd64] http://mr.lab.bgdn.io/mongo/ubuntu $(lsb_release -cs)/mongodb-org/6.0 multiverse
