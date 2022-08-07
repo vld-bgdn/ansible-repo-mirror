@@ -1,0 +1,142 @@
+- name: Add lab.bgdn.io repos to the hosts
+  hosts: all
+  gather_facts: true
+  
+### General block
+  tasks:
+  - name: Get installed packages
+    package_facts:
+      manager: "auto"
+  - name: Get MongoDB version    
+    set_fact:
+      mongodb_ver: "{{ ansible_facts.packages['mongodb-org-server'][0].version[:3] }}"
+    when: "'mongodb-org-server' in ansible_facts.packages"
+  - name: Get ElasticSearch version    
+    set_fact:
+      elastic_ver: "{{ ansible_facts.packages['elasticsearch'][0].version[:1] }}"
+    when: "'elasticsearch' in ansible_facts.packages"
+  - name: Get ElasticSearch OSS version
+    set_fact:
+      elastic_oss_ver: "{{ ansible_facts.packages['elasticsearch-oss'][0].version[:1] }}"
+    when: "'elasticsearch-oss' in ansible_facts.packages"
+  - name: Get Logstash version
+    set_fact:
+      logstash_ver: "{{ ansible_facts.packages['elasticsearch-oss'][0].version[:1] }}"
+    when: "'logstash' in ansible_facts.packages"
+  - name: Get Logstash OSS version
+    set_fact:
+      logstash_oss_ver: "{{ ansible_facts.packages['elasticsearch-oss'][0].version[:1] }}"
+    when: "'logstash-oss' in ansible_facts.packages"
+  - name: Get Logstash OSS version
+    set_fact:
+      confluent_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:3] }}"
+    when: "'confluent-common' in ansible_facts.packages"
+  - name: Get MySQL community version
+    set_fact:
+      mysql_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:3] }}"
+    when: "'mysql-community-server' in ansible_facts.packages"
+  - name: Get MariaDB version
+    set_fact:
+      mariadb_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:4] }}"
+    when: "'MariaDB-server' in ansible_facts.packages"
+##Troubleshooting
+  - name: Display MongoDB version
+    debug: 
+      msg: "{{ mongodb_ver }}"
+    when: "'mongodb-org-server' in ansible_facts.packages"
+  - name: Display ElasticSearch version
+    debug: 
+      msg: "{{ elastic_ver }}"
+    when: "'elasticsearch' in ansible_facts.packages"
+  - name: Display ElasticSearch OSS version
+    debug: 
+      msg: "{{ elastic_oss_ver }}"
+    when: "'elasticsearch-oss' in ansible_facts.packages"
+  - name: Display Logstash version
+    debug: 
+      msg: "{{ logstash_ver }}"
+    when: "'logstash' in ansible_facts.packages"
+  - name: Display Logstash OSS version
+    debug: 
+      msg: "{{ logstash_oss_ver }}"
+    when: "'logstash-oss' in ansible_facts.packages"
+  - name: Display Confluent version
+    debug: 
+      msg: "{{ confluent_ver }}"
+    when: "'confluent-common' in ansible_facts.packages"
+  - name: Display MySQL community version
+    debug: 
+      msg: "{{ mysql_ver }}"
+    when: "'mysql-community-server' in ansible_facts.packages"
+  - name: Display MariaDB version
+    debug: 
+      msg: "{{ mariadb_ver }}"
+    when: "'MariaDB-server' in ansible_facts.packages"
+  - name: Creates directory for original RPM repos
+    file:
+      path: "/etc/yum.repos.d/org_repos"
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Creates directory for original APT repos
+    file:
+      path: "/etc/apt/org_repos"
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Find all RPM .repo files in yum.repos.d directory
+    find:
+      paths: "/etc/yum.repos.d"
+      recurse: yes
+      patterns: "*.repo"
+    register: files_to_rename
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Copy all RPM .repo files in org_repos directory
+    copy:
+      remote_src: True
+      src: "{{ item.path }}"
+      dest: "/etc/yum.repos.d/org_repos/"
+      owner: root
+      mode: 0644
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Remove all RPM .repo files in yum.repos.d directory
+    file: 
+      path: "{{ item.path }}"
+      state: absent
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Find all repo .list files in apt directory
+    find:
+      paths: "/etc/apt/"
+      recurse: yes
+      patterns: "*.list"
+    register: files_to_rename
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Copy all APT repos .list files in org_repos directory
+    copy:
+      remote_src: True
+      src: "{{ item.path }}"
+      dest: "/etc/apt/org_repos/"
+      owner: root
+      mode: 0644
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Remove all APT repos .list files in apt directory
+    file: 
+      path: "{{ item.path }}"
+      state: absent
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "Debian"
