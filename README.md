@@ -1,2 +1,2 @@
 # ansible-repo-mirror
-Playbook for adding repository mirror to the hosts of lab.bgdn.io
+Playbooks to prepare hosts for the upgrade. Getting system information, adding a repository (mirror) to lab.bgdn.io hosts
