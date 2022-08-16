@@ -27,17 +27,17 @@
     set_fact:
       logstash_oss_ver: "{{ ansible_facts.packages['elasticsearch-oss'][0].version[:1] }}"
     when: "'logstash-oss' in ansible_facts.packages"
-  - name: Get Logstash OSS version
+  - name: Get Confluetn Kafka version
     set_fact:
       confluent_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:3] }}"
     when: "'confluent-common' in ansible_facts.packages"
   - name: Get MySQL community version
     set_fact:
-      mysql_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:3] }}"
+      mysql_ver: "{{ ansible_facts.packages['mysql-community-server'][0].version[:3] }}"
     when: "'mysql-community-server' in ansible_facts.packages"
   - name: Get MariaDB version
     set_fact:
-      mariadb_ver: "{{ ansible_facts.packages['confluent-common'][0].version[:4] }}"
+      mariadb_ver: "{{ ansible_facts.packages['MariaDB-server'][0].version[:4] }}"
     when: "'MariaDB-server' in ansible_facts.packages"
 ##Troubleshooting
   - name: Display MongoDB version
