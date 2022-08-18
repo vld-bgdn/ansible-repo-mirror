@@ -140,3 +140,72 @@
     loop: "{{ files_to_rename.files }}"
     when:
       - ansible_facts['os_family'] == "Debian"
+### Preparation
+  - name: Creates directory for original RPM repos
+    file:
+      path: "/etc/yum.repos.d/org_repos"
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Creates directory for original APT repos
+    file:
+      path: "/etc/apt/org_repos"
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Find all RPM .repo files in yum.repos.d directory
+    find:
+      paths: "/etc/yum.repos.d"
+      recurse: yes
+      patterns: "*.repo"
+    register: files_to_rename
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Copy all RPM .repo files in org_repos directory
+    copy:
+      remote_src: True
+      src: "{{ item.path }}"
+      dest: "/etc/yum.repos.d/org_repos/"
+      owner: root
+      mode: 0644
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Remove all RPM .repo files in yum.repos.d directory
+    file: 
+      path: "{{ item.path }}"
+      state: absent
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "RedHat"
+  - name: Find all repo .list files in apt directory
+    find:
+      paths: "/etc/apt/"
+      recurse: yes
+      patterns: "*.list"
+    register: files_to_rename
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Copy all APT repos .list files in org_repos directory
+    copy:
+      remote_src: True
+      src: "{{ item.path }}"
+      dest: "/etc/apt/org_repos/"
+      owner: root
+      mode: 0644
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "Debian"
+  - name: Remove all APT repos .list files in apt directory
+    file: 
+      path: "{{ item.path }}"
+      state: absent
+    loop: "{{ files_to_rename.files }}"
+    when:
+      - ansible_facts['os_family'] == "Debian"
